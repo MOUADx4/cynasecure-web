@@ -1,0 +1,80 @@
+security:
+    password_hashers:
+        App\Entity\User:
+            algorithm: argon2id
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        api:
+            pattern: ^/api
+            provider: app_user_provider
+            stateless: false
+            lazy: true
+            user_checker: App\Security\UserChecker
+            entry_point: App\Security\ApiAuthenticationEntryPoint
+
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: App\Security\LoginSuccessHandler
+                failure_handler: App\Security\LoginFailureHandler
+
+            two_factor:
+                auth_form_path: /api/auth/2fa-prompt
+                check_path: /api/auth/2fa/check
+                auth_code_parameter_name: code
+                prepare_on_login: true
+                prepare_on_access_denied: false
+                success_handler: App\Security\TwoFactorSuccessHandler
+                failure_handler: App\Security\TwoFactorFailureHandler
+                authentication_required_handler: App\Security\TwoFactorRequiredHandler
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000
+                path: /
+                samesite: lax
+
+            logout:
+                path: /api/logout
+
+        main:
+            security: false
+
+    access_control:
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/home, roles: PUBLIC_ACCESS }
+        - { path: ^/api/services, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/api/password-reset, roles: PUBLIC_ACCESS }
+        - { path: ^/api/contact, roles: PUBLIC_ACCESS }
+        - { path: ^/api/chatbot, roles: PUBLIC_ACCESS }
+        - { path: ^/api/stripe/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/api/paypal/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/api/email/verify-change, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/verify-email, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/resend-verification, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/2fa-prompt, roles: PUBLIC_ACCESS }
+        - { path: ^/api/webhooks, roles: PUBLIC_ACCESS }
+
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+
+        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+when@prod:
+    security:
+        access_control:
+            - { path: ^/api/doc, roles: ROLE_ADMIN }

@@ -1,0 +1,17 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Cynasecure API
+            description: |
+                API REST de la plateforme Cynasecure.
+                Authentification par session Symfony (cookie PHPSESSID).
+            version: 1.0.0
+        components:
+            securitySchemes:
+                cookieAuth:
+                    type: apiKey
+                    in: cookie
+                    name: PHPSESSID
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$)
