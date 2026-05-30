@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Shield, Lock, Eye, Users, Zap, Globe, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/Button";
+import { PageTransition } from "../../components/ui/PageTransition";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
@@ -38,6 +39,7 @@ export default function AProposPage() {
   ];
 
   return (
+    <PageTransition>
     <div className="bg-gray-950 min-h-screen">
 
       {/* En-tête */}
@@ -216,5 +218,6 @@ export default function AProposPage() {
       </section>
 
     </div>
+    </PageTransition>
   );
 }

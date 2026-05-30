@@ -6,6 +6,8 @@ import { ContactForm } from "../../components/contact/ContactForm";
 import { ChatbotWidget } from "../../components/contact/ChatbotWidget";
 import { contactApi, type UserMessage } from "../../api/contact";
 import { useAuth } from "../../hooks/useAuth";
+import { PageTransition } from "../../components/ui/PageTransition";
+import { FadeIn } from "../../components/ui/FadeIn";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
@@ -86,9 +88,11 @@ export default function ContactPage() {
   };
 
   return (
+    <PageTransition>
     <div className="bg-gray-950 min-h-screen">
 
       {/* En-tête */}
+      <FadeIn>
       <section className="relative overflow-hidden pt-28 pb-20 border-b border-gray-800">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] opacity-10 pointer-events-none"
@@ -118,6 +122,7 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
+      </FadeIn>
 
       {/* Informations de contact */}
       <section className="border-b border-gray-800">
@@ -258,5 +263,6 @@ export default function ContactPage() {
 
       <ChatbotWidget onEscalate={handleEscalate} />
     </div>
+    </PageTransition>
   );
 }

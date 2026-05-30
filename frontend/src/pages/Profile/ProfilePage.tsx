@@ -14,6 +14,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
+import { PageTransition } from "../../components/ui/PageTransition";
 import { UserNav } from "../../components/layout/UserNav";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "../../hooks/useToast";
@@ -728,7 +729,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <>
+    <PageTransition>
       <UserNav />
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
@@ -933,6 +934,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </>
+    </PageTransition>
   );
 }

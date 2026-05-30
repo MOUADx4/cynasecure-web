@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import {
   Search,
@@ -15,6 +16,8 @@ import { ServiceCard } from "../../components/shared/ServiceCard";
 import { servicesApi, type Service, type SearchCriteria } from "../../api/services";
 import { toast } from "../../hooks/useToast";
 import { cn } from "../../lib/utils";
+import { PageTransition } from "../../components/ui/PageTransition";
+import { FadeIn } from "../../components/ui/FadeIn";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
@@ -240,9 +243,11 @@ export default function CataloguePage() {
   const hasPriceFilter = pmin !== "" || pmax !== "";
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-gray-950">
 
       {/* Header */}
+      <FadeIn>
       <div className="bg-gray-950 border-b border-gray-800">
         <div className="container py-12">
           <div className="flex items-center gap-2 font-mono text-xs text-gray-400 mb-6">
@@ -284,6 +289,8 @@ export default function CataloguePage() {
           </div>
         </div>
       </div>
+
+      </FadeIn>
 
       {/* Toolbar */}
       <div className="border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
@@ -476,15 +483,24 @@ export default function CataloguePage() {
                 {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
               </div>
             ) : (
-              <div className={cn("gap-px transition-opacity duration-200", fetching && "opacity-60",
-                viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 bg-gray-800" : "flex flex-col divide-y divide-gray-800"
-              )}>
-                {paginated.map((s) => (
-                  <div key={s.id} className={cn("bg-gray-950", viewMode === "list" && "hover:bg-gray-900 transition-colors")}>
-                    <ServiceCard service={s} />
-                  </div>
-                ))}
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${type}-${sort}-${page}-${[...cats].join(",")}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className={cn("gap-px", fetching && "opacity-60",
+                    viewMode === "grid" ? "grid md:grid-cols-2 xl:grid-cols-3 bg-gray-800" : "flex flex-col divide-y divide-gray-800"
+                  )}
+                >
+                  {paginated.map((s) => (
+                    <div key={s.id} className={cn("bg-gray-950", viewMode === "list" && "hover:bg-gray-900 transition-colors")}>
+                      <ServiceCard service={s} />
+                    </div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             )}
 
             {!loading && total === 0 && (
@@ -525,5 +541,6 @@ export default function CataloguePage() {
         </div>
       </div>
     </div>
+    </PageTransition>
   );
 }

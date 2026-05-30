@@ -5,6 +5,7 @@ import { PublicLayout } from "../components/layout/PublicLayout";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminProtectedRoute } from "./AdminProtectedRoute";
+import { ScrollRestorer } from "../components/ui/ScrollRestorer";
 import { useAuth } from "../hooks/useAuth";
 import { Loader } from "../components/ui/Loader";
 
@@ -49,6 +50,7 @@ export function AppRouter() {
 
   return (
     <BrowserRouter>
+      <ScrollRestorer />
       <Suspense fallback={<Loader />}>
         <Routes>
 

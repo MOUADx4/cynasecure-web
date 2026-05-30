@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { PageTransition } from "../../components/ui/PageTransition";
 
 const SECTIONS = [
   {
@@ -276,6 +277,7 @@ export default function CguPage() {
   const disclaimer = t("legal.unofficialTranslation");
 
   return (
+    <PageTransition>
     <div className="bg-gray-950 min-h-screen">
 
       {/* En-tête */}
@@ -354,5 +356,6 @@ export default function CguPage() {
       </div>
 
     </div>
+    </PageTransition>
   );
 }

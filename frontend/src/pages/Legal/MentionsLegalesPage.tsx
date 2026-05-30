@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PageTransition } from "../../components/ui/PageTransition";
 import React from "react";
 
 const SECTIONS = [
@@ -208,6 +209,7 @@ export default function MentionsLegalesPage() {
   const disclaimer = t("legal.unofficialTranslation");
 
   return (
+    <PageTransition>
     <div className="bg-gray-950 min-h-screen">
 
       {/* En-tête */}
@@ -286,5 +288,6 @@ export default function MentionsLegalesPage() {
       </div>
 
     </div>
+    </PageTransition>
   );
 }

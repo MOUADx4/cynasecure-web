@@ -6,11 +6,13 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "../ui/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { contactApi } from "../../api/contact";
 import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 import React, { useEffect, useState } from "react";
 
 const LANGS = ["fr", "en", "es"] as const;
@@ -27,8 +29,10 @@ export function Navbar() {
   const { count } = useCart();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [open, setOpen]     = useState(false);
-  const [unread, setUnread] = useState(0);
+  const [open, setOpen]       = useState(false);
+  const [unread, setUnread]   = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!isAuthenticated) { setUnread(0); return; }
@@ -36,6 +40,12 @@ export function Navbar() {
       .then((r) => setUnread(r.count))
       .catch(() => {});
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   const changeLang = (lang: Lang) => {
     i18n.changeLanguage(lang);
@@ -46,9 +56,13 @@ export function Navbar() {
       isActive ? "text-blue-400" : "text-gray-400 hover:text-white"
     }`;
 
+  const mobileDuration = reducedMotion ? 0 : 0.18;
+
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-800 bg-gray-950/80 backdrop-blur-xl">
-      <nav className="container flex h-16 items-center justify-between" aria-label="Navigation principale">
+    <header className={`sticky top-0 z-50 border-b bg-gray-950/80 backdrop-blur-xl transition-all duration-200 ${
+      scrolled ? "h-14 border-gray-700 bg-gray-950/95" : "h-16 border-gray-800"
+    }`}>
+      <nav className="container flex h-full items-center justify-between" aria-label="Navigation principale">
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2" aria-label="CynaSecure — Accueil">
@@ -191,8 +205,16 @@ export function Navbar() {
       </nav>
 
       {/* Mobile menu */}
+      <AnimatePresence>
       {open && (
-        <div id="mobile-menu" className="md:hidden border-t border-gray-800 bg-gray-950">
+        <motion.div
+          id="mobile-menu"
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: mobileDuration, ease: "easeOut" }}
+          className="md:hidden border-t border-gray-800 bg-gray-950"
+        >
           <div className="container py-4 flex flex-col gap-4">
 
             <NavLink to="/" end className={linkStyle} onClick={() => setOpen(false)}>
@@ -245,8 +267,9 @@ export function Navbar() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </header>
   );
 }
