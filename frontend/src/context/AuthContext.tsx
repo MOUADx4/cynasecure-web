@@ -54,8 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (displayName: string, email: string, password: string) => {
-    const res = await authApi.register(displayName, email, password);
-    return { needsVerification: res.needsVerification };
+    await authApi.register(displayName, email, password);
+    await login(email, password);
+    return { needsVerification: false };
   };
 
   const updateProfile = async (data: Partial<User>) => {

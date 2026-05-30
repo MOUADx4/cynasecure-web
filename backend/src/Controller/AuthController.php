@@ -76,20 +76,19 @@ class AuthController extends AbstractController
         $user->setRole('ROLE_USER');
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTime());
-
-        $raw  = bin2hex(random_bytes(32));
-        $user->setEmailVerificationToken(hash('sha256', $raw));
-        $user->setEmailVerificationExpiresAt(new \DateTimeImmutable('+24 hours'));
+        $user->setEmailVerifiedAt(new \DateTimeImmutable());
 
         $em->persist($user);
         $em->flush();
 
-        $this->sendVerificationEmail($mailer, $user, $raw);
+        try {
+            $raw = bin2hex(random_bytes(32));
+            $this->sendVerificationEmail($mailer, $user, $raw);
+        } catch (\Throwable) {
+            // mailer unavailable — account is created and verified
+        }
 
-        return new JsonResponse([
-            'needsVerification' => true,
-            'message'           => 'Un email de vérification a été envoyé à ' . $email . '.',
-        ], 201);
+        return new JsonResponse($this->serializeUser($user), 201);
     }
 
     #[OA\Tag(name: 'Auth')]
