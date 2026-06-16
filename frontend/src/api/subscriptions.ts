@@ -3,7 +3,7 @@ import { apiFetch } from "./apiFetch";
 export interface Subscription {
   id: number;
   service: {
-    categorySlug: any;
+    categorySlug: string | null;
     id: number;
     title: string;
   };

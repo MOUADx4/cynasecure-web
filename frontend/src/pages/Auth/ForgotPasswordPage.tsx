@@ -93,14 +93,6 @@ export default function ForgotPasswordPage() {
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-20 pointer-events-none"
         style={{ background: "radial-gradient(circle, #2563eb 0%, transparent 70%)" }}
       />
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
 
       {/* Header */}
       <div className="text-center mb-8 relative">
@@ -120,7 +112,7 @@ export default function ForgotPasswordPage() {
 
       <div className="relative">
 
-        {/* ── Step 1 : Email ── */}
+        {/* Step 1 : Email */}
         {step === "email" && (
           <form onSubmit={handleEmailSubmit} className="space-y-5">
             <div>
@@ -144,15 +136,15 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        {/* ── Step 2 : Token + nouveau mot de passe ── */}
+        {/* Step 2 : Token + nouveau mot de passe */}
         {step === "token" && (
           <form onSubmit={handleTokenSubmit} className="space-y-5">
             <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3 text-sm text-blue-300 leading-relaxed">
               {t("auth.resetCodeInfo", { email })}
             </div>
 
-            {/* Dev mode helper */}
-            {devToken && (
+            {/* Dev mode helper - never rendered in production */}
+            {import.meta.env.DEV && devToken && (
               <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs text-yellow-300 font-mono break-all">
                 <span className="font-semibold text-yellow-400 block mb-1">{t("auth.devModeToken")}</span>
                 {devToken}
@@ -261,7 +253,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        {/* ── Step 3 : Succès ── */}
+        {/* Step 3 : Succès */}
         {step === "done" && (
           <div className="space-y-5 text-center">
             <div className="flex justify-center">

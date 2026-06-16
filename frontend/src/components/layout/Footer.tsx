@@ -1,102 +1,105 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Fingerprint, Network, Lock } from "lucide-react";
+import { Shield, Linkedin, Twitter, Github } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+const SOCIAL = [
+  { href: "https://linkedin.com/company/cynasecure", Icon: Linkedin, label: "LinkedIn" },
+  { href: "https://twitter.com/cynasecure",          Icon: Twitter,  label: "Twitter / X" },
+  { href: "https://github.com/cynasecure",           Icon: Github,   label: "GitHub" },
+];
+
+const CERTS = ["ISO 27001", "SOC 2 Type II", "ANSSI", "RGPD"];
 
 export function Footer() {
   const { t } = useTranslation();
+  const year = new Date().getFullYear();
 
   const sections = [
     {
       key: "solutions",
       title: t("common.footerSolutions"),
       links: [
-        { label: "SOC managé", to: "/catalogue?cat=soc" },
-        { label: "Protection Endpoint", to: "/catalogue?cat=edr" },
-        { label: "Détection étendue (XDR)", to: "/catalogue?cat=xdr" },
-        { label: "Sécurité Cloud", to: "/catalogue?cat=cloud" },
+        { label: "SOC managé",              to: "/catalogue?cat=soc"   },
+        { label: "Protection Endpoint",     to: "/catalogue?cat=edr"   },
+        { label: "Détection étendue (XDR)", to: "/catalogue?cat=xdr"   },
+        { label: "Sécurité Cloud",          to: "/catalogue?cat=cloud" },
       ],
-      icon: <Network className="h-4 w-4 text-blue-500" aria-hidden="true" />,
     },
     {
       key: "company",
       title: t("common.footerCompany"),
       links: [
-        { label: "Notre mission", to: "/a-propos" },
-        { label: "Nous contacter", to: "/contact" },
-        { label: "Recrutement", to: "/carrieres" },
-        { label: "Actualités", to: "/blog" },
+        { label: "Notre mission",  to: "/a-propos"  },
+        { label: "Nous contacter", to: "/contact"   },
+        { label: "Recrutement",    to: "/carrieres" },
+        { label: "Actualités",     to: "/blog"      },
       ],
-      icon: <Fingerprint className="h-4 w-4 text-blue-500" aria-hidden="true" />,
     },
     {
       key: "legal",
       title: t("common.footerLegal"),
       links: [
-        { label: "Mentions légales", to: "/mentions-legales" },
-        { label: "Conditions générales", to: "/cgv" },
-        { label: "Confidentialité", to: "/confidentialite" },
+        { label: "Mentions légales",     to: "/mentions-legales" },
+        { label: "Conditions générales", to: "/cgv"              },
+        { label: "Confidentialité",      to: "/confidentialite"  },
       ],
-      icon: <Lock className="h-4 w-4 text-blue-500" aria-hidden="true" />,
     },
   ];
 
   return (
-    <footer className="relative border-t border-gray-800 bg-gray-950 mt-32 pt-20 pb-10">
+    <footer className="bg-gray-950 border-t border-gray-800/60">
 
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #2563eb 0%, transparent 70%)" }}
-        aria-hidden="true"
-      />
+      {/* Main grid */}
+      <div className="container pt-16 pb-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
 
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-        aria-hidden="true"
-      />
-
-      <div className="relative container">
-
-        <div className="grid gap-12 md:grid-cols-4">
-
-          {/* Identité */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2" aria-label="CynaSecure — Accueil">
-              <img
-                src="/favicon.ico"
-                alt=""
-                aria-hidden="true"
-                className="h-5 w-5 object-contain"
-              />
-              <span className="text-xl font-bold tracking-tight text-white">
-                CynaSecure
+          {/* Brand column */}
+          <div className="space-y-6">
+            <Link to="/" className="inline-flex items-center gap-2.5" aria-label="CynaSecure — Accueil">
+              <img src="/favicon.ico" alt="" aria-hidden="true" className="h-6 w-6 object-contain" />
+              <span
+                className="text-lg font-black text-white"
+                style={{ letterSpacing: "-0.02em" }}
+              >
+                Cyna<span className="text-blue-400">Secure</span>
               </span>
             </Link>
 
-            <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+            <p className="text-sm text-gray-500 leading-relaxed max-w-[220px]">
               {t("common.footerDesc")}
             </p>
+
+            {/* Social */}
+            <div className="flex items-center gap-2" role="list" aria-label="Réseaux sociaux">
+              {SOCIAL.map(({ href, Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  role="listitem"
+                  aria-label={label}
+                  className="flex h-8 w-8 items-center justify-center border border-gray-800 bg-gray-900 text-gray-500 hover:text-white hover:border-gray-600 hover:bg-gray-800 transition-all duration-150"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Sections */}
+          {/* Nav columns */}
           {sections.map((section) => (
             <nav key={section.key} aria-label={section.title}>
-              <h2 className="mb-4 text-sm font-semibold text-white flex items-center gap-2">
-                {section.icon}
+              <h2 className="mb-5 font-mono text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-gray-600">
                 {section.title}
               </h2>
-
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="relative text-gray-500 hover:text-blue-400 transition-colors font-medium after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-blue-400 after:transition-all after:duration-300 hover:after:w-full"
+                      className="text-sm text-gray-500 hover:text-white transition-colors duration-150"
                     >
                       {link.label}
                     </Link>
@@ -106,10 +109,28 @@ export function Footer() {
             </nav>
           ))}
         </div>
+      </div>
 
-        <div className="mt-16 border-t border-gray-800 pt-6 text-center">
-          <p className="text-xs text-gray-600 font-mono tracking-widest">
-            {t("common.footerCopyright", { year: new Date().getFullYear() })}
+      {/* Trust bar */}
+      <div className="border-t border-gray-800/60">
+        <div className="container py-5 flex flex-wrap items-center justify-between gap-4">
+
+          {/* Certifications */}
+          <div className="flex flex-wrap items-center gap-2" aria-label="Certifications et conformité">
+            {CERTS.map((cert) => (
+              <span
+                key={cert}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-800 bg-gray-900/60 text-gray-500 font-mono text-[10px] tracking-wider"
+              >
+                <Shield className="h-2.5 w-2.5 text-blue-500/50" aria-hidden="true" />
+                {cert}
+              </span>
+            ))}
+          </div>
+
+          {/* Copyright */}
+          <p className="text-[11px] text-gray-600 font-mono tracking-wide">
+            © {year} CynaSecure — Tous droits réservés
           </p>
         </div>
       </div>

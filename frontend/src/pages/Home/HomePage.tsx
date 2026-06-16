@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, lazy, Suspense } from "react";
+import { Link, useNavigate } from "react-router-dom";
+const ChatbotWidget = lazy(() => import("../../components/contact/ChatbotWidget").then(m => ({ default: m.ChatbotWidget })));
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,6 +15,7 @@ import {
   Activity,
   AlertTriangle,
   CheckCircle,
+  Check,
   Network,
   Database,
   Terminal,
@@ -28,16 +30,32 @@ import {
   Layers,
   ScanLine,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
 import { ServiceCard } from "../../components/shared/ServiceCard";
 import { FadeIn } from "../../components/ui/FadeIn";
+import { Reveal } from "../../components/motion/Reveal";
+import { AnimatedCounter } from "../../components/motion/AnimatedCounter";
+import { LogoMarquee } from "../../components/motion/LogoMarquee";
 import { PageTransition } from "../../components/ui/PageTransition";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { homeApi, type CarouselSlide, type HomeCategory, type HomeService } from "../../api/home";
 import { type Service } from "../../api/services";
 import { useTranslation } from "react-i18next";
 import React from "react";
+
+const CYCLING_TERMS = ["SOC", "EDR", "XDR", "CSPM", "Zero Trust", "NDR"];
+
+const DOMAIN_DESC: Record<string, string> = {
+  edr:     "Endpoint Detection & Response",
+  xdr:     "Extended Detection & Response",
+  soc:     "Security Operations Center",
+  cloud:   "Cloud Security Posture Mgmt",
+  network: "Network Detection & Response",
+  iam:     "Identity & Access Management",
+  data:    "Data Security & Compliance",
+  support: "Support & Conseil SOC",
+};
 
 /* Ticker de menaces */
 function getThreatEvents(t: (k: string) => string) {
@@ -101,39 +119,7 @@ function ThreatTicker() {
   );
 }
 
-/* Stat counter animé */
-function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        observer.disconnect();
-        let start = 0;
-        const step = Math.ceil(target / 60);
-        const timer = setInterval(() => {
-          start = Math.min(start + step, target);
-          setCount(start);
-          if (start >= target) clearInterval(timer);
-        }, 20);
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target]);
-
-  return (
-    <span ref={ref}>
-      {count.toLocaleString("fr-FR")}
-      {suffix}
-    </span>
-  );
-}
-
-/* Certifications (noms de standards — non traduits) */
+/* Certifications (noms de standards - non traduits) */
 const CERTIFICATIONS = ["ISO 27001", "SOC 2 Type II", "ANSSI PRIS", "HDS", "PCI DSS", "RGPD"];
 
 /* Carousel principal */
@@ -163,7 +149,20 @@ function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
 
   return (
     <div className="relative w-full overflow-hidden" style={{ minHeight: "92vh" }}>
-      {slide.imagePath ? (
+      {slide.videoPath ? (
+        <video
+          key={slide.videoPath}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+          style={{ opacity: fade ? 1 : 0 }}
+          src={`/${slide.videoPath}`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden="true"
+        />
+      ) : slide.imagePath ? (
         <div
           className="absolute inset-0 bg-cover bg-center transition-opacity duration-300"
           style={{ backgroundImage: `url(/${slide.imagePath})`, opacity: fade ? 1 : 0 }}
@@ -171,13 +170,6 @@ function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
       ) : null}
       <div className="absolute inset-0 bg-gray-950/80" />
 
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
 
       <div
         className="relative container flex flex-col justify-center pt-28 pb-24"
@@ -194,25 +186,19 @@ function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
 
         <div className="flex flex-wrap items-center gap-4">
           {slide.ctaLabel && slide.ctaUrl ? (
-            <Link to={slide.ctaUrl}>
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 gap-2 rounded-none">
-                {slide.ctaLabel}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+            <Link to={slide.ctaUrl} className="btn-cta text-sm font-bold px-8 py-3.5">
+              {slide.ctaLabel}
+              <ArrowRight className="h-4 w-4 cta-arrow" />
             </Link>
           ) : (
-            <Link to="/inscription">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 gap-2 rounded-none">
-                {t("home.startPoc")}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+            <Link to="/inscription" className="btn-cta text-sm font-bold px-8 py-3.5">
+              {t("home.startPoc")}
+              <ArrowRight className="h-4 w-4 cta-arrow" />
             </Link>
           )}
-          <Link to="/catalogue">
-            <Button variant="ghost" size="lg" className="text-white border border-white/20 hover:bg-white/10 rounded-none gap-2 font-mono text-sm tracking-wide">
-              {t("home.explorePlatform")}
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <Link to="/catalogue" className="btn-ghost-dark text-sm">
+            {t("home.explorePlatform")}
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -245,28 +231,76 @@ function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
   );
 }
 
+// SWR helper: show cache immediately, refresh in background
+function useCached<T>(key: string, fetcher: () => Promise<T>, fallback: T): [T, boolean] {
+  const [data, setData] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch { return fallback; }
+  });
+  const hasCached = (() => { try { return !!localStorage.getItem(key); } catch { return false; } })();
+  const [loading, setLoading] = useState(!hasCached);
+
+  useEffect(() => {
+    fetcher()
+      .then((result) => {
+        setData(result);
+        try { localStorage.setItem(key, JSON.stringify(result)); } catch {}
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return [data, loading];
+}
+
+// Shown instantly before API responds - eliminates LCP render delay
+const STATIC_SLIDE: CarouselSlide = {
+  id: 0,
+  title: "Cybersécurité B2B\nSans Compromis",
+  subtitle: "SOC, EDR, XDR managés. Déploiement instantané, protection 24/7.",
+  ctaLabel: "Commencer",
+  ctaUrl: "/inscription",
+  imagePath: null,
+  videoPath: null,
+  position: 0,
+  isActive: true,
+};
+
 export default function HomePage() {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
+  const navigate = useNavigate();
 
-  const [slides, setSlides] = useState<CarouselSlide[]>([]);
-  const [categories, setCategories] = useState<HomeCategory[]>([]);
-  const [topProducts, setTopProducts] = useState<HomeService[]>([]);
-  const [loadingSlides, setLoadingSlides] = useState(true);
-  const [loadingCats, setLoadingCats] = useState(true);
-  const [loadingTop, setLoadingTop] = useState(true);
+  const [slides, loadingSlides] = useCached<CarouselSlide[]>(
+    "home_carousel",
+    () => homeApi.getCarousel(),
+    [STATIC_SLIDE],
+  );
+  const [categories, loadingCats] = useCached<HomeCategory[]>(
+    "home_categories",
+    () => homeApi.getCategories(),
+    [],
+  );
+  const [topProducts, loadingTop] = useCached<HomeService[]>(
+    "home_top",
+    () => homeApi.getTopProducts(),
+    [],
+  );
+  const [cycleIdx, setCycleIdx] = useState(0);
 
   useEffect(() => {
-    homeApi.getCarousel().then((d) => setSlides(Array.isArray(d) ? d : [])).finally(() => setLoadingSlides(false));
-    homeApi.getCategories().then((d) => setCategories(Array.isArray(d) ? d : [])).finally(() => setLoadingCats(false));
-    homeApi.getTopProducts().then((d) => setTopProducts(Array.isArray(d) ? d : [])).finally(() => setLoadingTop(false));
-  }, []);
+    if (reduced) return;
+    const timer = setInterval(() => setCycleIdx((i) => (i + 1) % CYCLING_TERMS.length), 2400);
+    return () => clearInterval(timer);
+  }, [reduced]);
 
   const STATS = [
-    { value: 500, suffix: "+", label: t("home.statsProtected"), icon: Shield },
-    { value: 99, suffix: ".9%", label: t("home.statsUptime"), icon: Activity },
-    { value: 14, suffix: "s", label: t("home.statsMttd"), icon: Clock },
-    { value: 3200000, suffix: "", label: t("home.statsEvents"), icon: Database },
+    { displayValue: "500+", label: t("home.statsProtected"), icon: Shield },
+    { displayValue: "99%", label: t("home.statsUptime"), icon: Activity },
+    { displayValue: "14s", label: t("home.statsMttd"), icon: Clock },
+    { displayValue: "24/7", label: t("home.statsEvents"), icon: Database },
   ];
 
   const INCIDENT_STEPS = [
@@ -392,54 +426,91 @@ export default function HomePage() {
           <HeroCarousel slides={slides} />
         ) : (
           <section className="relative bg-gray-950 overflow-hidden" style={{ minHeight: "92vh" }}>
-            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)", backgroundSize: "48px 48px" }} />
             <div className="relative container flex flex-col justify-center pt-28 pb-24" style={{ minHeight: "92vh" }}>
-              <motion.h1
-                className="text-white font-black leading-none tracking-tight mb-6"
-                style={{ fontSize: "clamp(2.8rem, 6vw, 5rem)", letterSpacing: "-0.03em" }}
+              <motion.div
+                className="mb-6"
                 {...heroMotion}
               >
-                {t("home.stopAttacks")}
-                <br /><span className="text-blue-400">{t("home.beforeTheyHit")}</span>
-              </motion.h1>
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="h-px w-8 bg-blue-500" aria-hidden="true" />
+                  <span className="font-mono text-[0.7rem] tracking-[0.18em] uppercase text-blue-500">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={cycleIdx}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="inline-block tabular-nums"
+                      >
+                        {CYCLING_TERMS[cycleIdx]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                </div>
+                <h1
+                  className="text-white font-black leading-none tracking-tight mb-6"
+                  style={{ fontSize: "clamp(2.8rem, 6vw, 5rem)", letterSpacing: "-0.03em" }}
+                >
+                  {t("home.stopAttacks")}
+                  <br /><span className="text-blue-400">{t("home.beforeTheyHit")}</span>
+                </h1>
+              </motion.div>
               <motion.div
                 className="flex flex-wrap items-center gap-4"
                 initial={heroMotion.initial}
                 animate={heroMotion.animate}
                 transition={{ ...heroMotion.transition, delay: reduced ? 0 : 0.2 }}
               >
-                <Link to="/inscription">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 gap-2 rounded-none">
-                    {t("home.startPoc")} <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link to="/inscription" className="btn-cta text-sm font-bold px-8 py-3.5">
+                  {t("home.startPoc")} <ArrowRight className="h-4 w-4 cta-arrow" />
                 </Link>
+                <Link to="/catalogue" className="btn-ghost-dark text-sm">
+                  {t("home.explorePlatform")}
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </motion.div>
+              <motion.div
+                className="mt-12 flex flex-wrap items-center gap-2"
+                initial={heroMotion.initial}
+                animate={heroMotion.animate}
+                transition={{ ...heroMotion.transition, delay: reduced ? 0 : 0.35 }}
+              >
+                <span className="text-gray-500 text-xs font-mono tracking-widest mr-2">{t("home.certifiedBy")}</span>
+                {CERTIFICATIONS.map((c) => (
+                  <span key={c} className="text-gray-600 border border-gray-800 text-xs font-mono px-2 py-0.5">{c}</span>
+                ))}
               </motion.div>
             </div>
           </section>
         )}
 
-        {/* STATS */}
-        <FadeIn>
-          <section className="bg-gray-900 border-y border-gray-800">
+        {/* STATS - section claire */}
+        <Reveal variant="fadeIn">
+          <section className="section-white border-y border-light-border">
             <div className="container grid grid-cols-2 md:grid-cols-4">
               {STATS.map((s, i) => (
                 <div
                   key={s.label}
-                  className={`py-10 px-8 text-center ${i < 3 ? "border-r border-gray-800" : ""}`}
+                  className={`py-10 px-8 text-center group cursor-default ${i < 3 ? "border-r border-light-border" : ""}`}
                 >
-                  <s.icon className="h-5 w-5 text-blue-500 mx-auto mb-3 opacity-70" />
-                  <div className="text-3xl font-black text-white tracking-tight">
-                    <CountUp target={s.value} suffix={s.suffix} />
+                  <div className="flex justify-center mb-3">
+                    <div className="h-10 w-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                      <s.icon className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                    </div>
                   </div>
-                  <div className="mt-1 text-xs text-gray-400 font-mono tracking-wide">{s.label}</div>
+                  <div className="text-3xl font-black tabular-nums text-slate-900" style={{ letterSpacing: "-0.02em" }}>
+                    <AnimatedCounter value={s.displayValue} className="tabular-nums" />
+                  </div>
+                  <div className="mt-1 text-[0.65rem] text-slate-500 font-mono tracking-[0.1em] uppercase">{s.label}</div>
                 </div>
               ))}
             </div>
           </section>
-        </FadeIn>
+        </Reveal>
 
         {/* THREAT INTELLIGENCE */}
-        <FadeIn>
+        <Reveal>
           <section className="bg-gray-950 py-28">
             <div className="container grid lg:grid-cols-2 gap-20 items-center">
               <div>
@@ -469,7 +540,7 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-4">
-                <div className="border border-red-500/20 bg-red-500/5 rounded-none p-6">
+                <div className="border border-red-500/20 bg-red-500/5 p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <AlertTriangle className="h-4 w-4 text-red-400" />
                     <span className="text-red-400 font-mono text-xs tracking-widest">{t("home.legacyApproach")}</span>
@@ -485,7 +556,7 @@ export default function HomePage() {
                   </ul>
                 </div>
 
-                <div className="border border-blue-500/30 bg-blue-500/5 rounded-none p-6">
+                <div className="border border-blue-500/30 bg-blue-500/5 p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <CheckCircle className="h-4 w-4 text-blue-400" />
                     <span className="text-blue-400 font-mono text-xs tracking-widest">{t("home.cynasecureApproach")}</span>
@@ -494,7 +565,7 @@ export default function HomePage() {
                   <ul className="space-y-2">
                     {COMPARISON[1].advantages!.map((adv) => (
                       <li key={adv} className="flex items-center gap-2 text-sm text-gray-300">
-                        <span className="text-blue-400 text-lg leading-none">✓</span>
+                        <Check className="h-4 w-4 text-blue-400 shrink-0" />
                         {adv}
                       </li>
                     ))}
@@ -506,56 +577,55 @@ export default function HomePage() {
               </div>
             </div>
           </section>
-        </FadeIn>
+        </Reveal>
 
-        {/* CAPACITÉS */}
-        <FadeIn>
-          <section className="bg-gray-900 py-28 border-y border-gray-800">
-            <div className="container">
+        {/* CAPACITÉS - section claire avec stagger */}
+        <section className="section-light py-28 border-y border-light-border">
+          <div className="container">
+            <Reveal>
               <div className="mb-16">
-                <div className="text-blue-500 font-mono text-xs tracking-widest mb-4">{t("home.platform")}</div>
+                <div className="eyebrow-dark mb-4">{t("home.platform")}</div>
                 <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-                  <h2 className="text-4xl font-black text-white tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+                  <h2 className="text-4xl font-black text-slate-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
                     {t("home.sixCapabilities")}
                   </h2>
                   <Link to="/catalogue">
-                    <Button variant="ghost" className="text-blue-400 border border-blue-500/30 hover:bg-blue-500/10 rounded-none font-mono text-xs tracking-wide gap-2">
+                    <Button variant="ghost" className="text-blue-600 border border-blue-200 hover:bg-blue-50 font-mono text-xs tracking-wide gap-2">
                       {t("home.fullCatalogue")} <ArrowRight className="h-3 w-3" />
                     </Button>
                   </Link>
                 </div>
               </div>
+            </Reveal>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
-                {CAPABILITIES.map((cap) => (
-                  <div
-                    key={cap.title}
-                    className="bg-gray-900 p-8 hover:bg-gray-800/60 transition-colors group"
-                  >
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {CAPABILITIES.map((cap, i) => (
+                <Reveal key={cap.title} delay={i * 0.07} variant="fadeUp">
+                  <div className="card-light p-8 h-full group cursor-default">
                     <div className="flex items-start justify-between mb-6">
-                      <cap.icon className="h-6 w-6 text-blue-500" />
-                      <span className="text-[10px] font-mono tracking-widest text-gray-400 border border-gray-700 px-2 py-0.5">
-                        {cap.tag}
-                      </span>
+                      <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                        <cap.icon className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <span className="badge-trust">{cap.tag}</span>
                     </div>
-                    <h3 className="text-white font-bold text-lg mb-2">{cap.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-5">{cap.desc}</p>
+                    <h3 className="text-slate-900 font-bold text-lg mb-2">{cap.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed mb-5">{cap.desc}</p>
                     <div className="flex flex-wrap gap-2">
                       {cap.metrics.map((m) => (
-                        <span key={m} className="text-[11px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5">
+                        <span key={m} className="text-[11px] font-mono text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 tabular-nums">
                           {m}
                         </span>
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                </Reveal>
+              ))}
             </div>
-          </section>
-        </FadeIn>
+          </div>
+        </section>
 
         {/* TIMELINE D'INCIDENT */}
-        <FadeIn>
+        <Reveal>
           <section className="bg-gray-950 py-28">
             <div className="container">
               <div className="text-blue-500 font-mono text-xs tracking-widest mb-4">{t("home.automatedResponse")}</div>
@@ -574,7 +644,7 @@ export default function HomePage() {
                 <div className="grid lg:grid-cols-5 gap-8 lg:gap-4">
                   {INCIDENT_STEPS.map((step, i) => (
                     <div key={step.label} className="relative">
-                      <div className="hidden lg:flex items-center justify-center w-16 h-16 border border-blue-500/30 bg-gray-950 rounded-none mb-6 mx-auto relative z-10">
+                      <div className="hidden lg:flex items-center justify-center w-16 h-16 border border-blue-500/30 bg-gray-950 mb-6 mx-auto relative z-10 shadow-lg shadow-blue-500/10">
                         <step.icon className="h-6 w-6 text-blue-400" />
                       </div>
 
@@ -596,80 +666,111 @@ export default function HomePage() {
               </div>
             </div>
           </section>
-        </FadeIn>
+        </Reveal>
 
-        {/* DOMAINES */}
+        {/* DOMAINES - section claire */}
         {(loadingCats || categories.length > 0) && (
-          <FadeIn>
-            <section className="bg-gray-900 py-28 border-y border-gray-800">
-              <div className="container space-y-12">
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-                  <div>
-                    <div className="text-blue-500 font-mono text-xs tracking-widest mb-4">{t("home.coverage")}</div>
-                    <h2 className="text-4xl font-black text-white tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-                      {t("home.protectionDomains")}
-                    </h2>
-                    <p className="mt-3 text-gray-400 text-sm max-w-lg">
-                      {t("home.protectionDomainsDesc")}
-                    </p>
-                  </div>
+          <section className="py-28 bg-white border-y border-gray-100">
+            <div className="container space-y-14">
+              <Reveal>
+                <div>
+                  <div className="eyebrow-dark mb-4">{t("home.coverage")}</div>
+                  <h2 className="text-4xl font-black text-slate-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+                    {t("home.protectionDomains")}
+                  </h2>
+                  <p className="mt-3 text-slate-500 text-sm max-w-xl leading-relaxed">
+                    {t("home.protectionDomainsDesc")}
+                  </p>
                 </div>
+              </Reveal>
 
-                <div className={`grid gap-px bg-gray-800 ${categories.length <= 3 ? "md:grid-cols-3" : "md:grid-cols-3 lg:grid-cols-5"}`}>
-                  {loadingCats ? (
-                    <p className="col-span-full text-center text-gray-400 py-12 font-mono text-sm">
-                      {t("home.loadingDomains")}
-                    </p>
-                  ) : (
-                    categories.map((c) => (
-                      <Link key={c.id} to={`/catalogue?cat=${c.slug}`} className="group bg-gray-900 hover:bg-gray-800/60 transition-colors p-8 flex flex-col gap-4">
-                        {c.imagePath ? (
-                          <img src={`/${c.imagePath}`} alt={c.name} className="w-12 h-12 object-cover" />
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-800 border border-gray-700 flex items-center justify-center">
-                            <Shield className="h-5 w-5 text-blue-500" />
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-white font-bold text-sm">{c.name}</p>
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {loadingCats ? (
+                  <p className="col-span-full text-center text-slate-400 py-12 font-mono text-sm">
+                    {t("home.loadingDomains")}
+                  </p>
+                ) : (
+                  categories.map((c, i) => (
+                    <Reveal key={c.id} delay={i * 0.07} variant="fadeUp">
+                      <Link
+                        to={`/catalogue?cat=${c.slug}`}
+                        className="group flex flex-col bg-gray-900 border border-gray-800 hover:border-blue-500/40 transition-colors duration-300 overflow-hidden"
+                      >
+                        {/* Image */}
+                        <div className="relative h-44 overflow-hidden bg-gray-800 flex-shrink-0">
+                          {c.imagePath ? (
+                            <>
+                              <img
+                                src={`/${c.imagePath}`}
+                                alt={c.name}
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              {/* Voile gradient bas */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent" />
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center"
+                              style={{ background: "linear-gradient(145deg, #0A0F1E 0%, #1E3A8A 100%)" }}>
+                              <Shield className="h-10 w-10 text-blue-500/40" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Texte */}
+                        <div className="flex flex-col flex-1 px-5 py-4 gap-1">
+                          <p className="text-white font-bold text-[15px] leading-snug group-hover:text-blue-400 transition-colors duration-200">
+                            {c.name}
+                          </p>
+                          <p className="text-gray-500 text-xs leading-relaxed">
+                            {DOMAIN_DESC[c.slug ?? ""] ?? "Protection avancée"}
+                          </p>
+                        </div>
+
+                        {/* Bas */}
+                        <div className="flex items-center px-5 pb-4 pt-1">
+                          <span className="text-gray-600 text-[11px] font-mono flex-1 tracking-wide">Explorer</span>
+                          <ArrowRight className="h-3 w-3 text-gray-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all duration-200" />
                         </div>
                       </Link>
-                    ))
-                  )}
-                </div>
+                    </Reveal>
+                  ))
+                )}
               </div>
-            </section>
-          </FadeIn>
+            </div>
+          </section>
         )}
 
-        {/* SOLUTIONS POPULAIRES */}
+        {/* SOLUTIONS POPULAIRES - section claire */}
         {(loadingTop || topProducts.length > 0) && (
-          <FadeIn>
-            <section className="bg-gray-950 py-28">
-              <div className="container space-y-12">
+          <section className="section-light py-28 border-y border-light-border">
+            <div className="container space-y-12">
+              <Reveal>
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                   <div>
-                    <div className="text-blue-500 font-mono text-xs tracking-widest mb-4">{t("home.inProduction")}</div>
-                    <h2 className="text-4xl font-black text-white tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+                    <div className="eyebrow-dark mb-4">{t("home.inProduction")}</div>
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
                       {t("home.mostAdopted")}
                     </h2>
                   </div>
                   <Link to="/catalogue">
-                    <Button variant="ghost" className="text-blue-400 border border-blue-500/30 hover:bg-blue-500/10 rounded-none font-mono text-xs tracking-wide gap-2 flex-shrink-0">
+                    <Button variant="ghost" className="text-blue-600 border border-blue-200 hover:bg-blue-50 font-mono text-xs tracking-wide gap-2 flex-shrink-0">
                       {t("home.allSolutions")} <ArrowRight className="h-3 w-3" />
                     </Button>
                   </Link>
                 </div>
+              </Reveal>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {loadingTop ? (
-                    <p className="col-span-full text-center text-gray-400 py-12 font-mono text-sm">
-                      {t("home.loading")}
-                    </p>
-                  ) : (
-                    topProducts.map((s) => (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {loadingTop ? (
+                  <p className="col-span-full text-center text-slate-400 py-12 font-mono text-sm">
+                    {t("home.loading")}
+                  </p>
+                ) : (
+                  topProducts.map((s, i) => (
+                    <Reveal key={s.id} delay={i * 0.08} variant="fadeUp">
                       <ServiceCard
-                        key={s.id}
                         service={{
                           id: s.id,
                           name: s.name,
@@ -686,16 +787,16 @@ export default function HomePage() {
                           isAvailable: true,
                         } as Service}
                       />
-                    ))
-                  )}
-                </div>
+                    </Reveal>
+                  ))
+                )}
               </div>
-            </section>
-          </FadeIn>
+            </div>
+          </section>
         )}
 
         {/* TÉMOIGNAGES */}
-        <FadeIn>
+        <Reveal>
           <section className="bg-gray-900 py-28 border-y border-gray-800">
             <div className="container">
               <div className="text-blue-500 font-mono text-xs tracking-widest mb-12">{t("home.clientFeedback")}</div>
@@ -703,8 +804,8 @@ export default function HomePage() {
               <div className="grid lg:grid-cols-2 gap-px bg-gray-800">
                 {TESTIMONIALS.map((testimonial) => (
                   <div key={testimonial.author} className="bg-gray-900 p-10">
-                    <div className="text-4xl text-blue-600 font-serif leading-none mb-6 select-none">
-                      "
+                    <div className="text-4xl text-blue-600/40 font-mono leading-none mb-6 select-none" aria-hidden="true">
+                      &ldquo;
                     </div>
                     <blockquote className="text-gray-300 text-base leading-relaxed mb-8 italic">
                       {testimonial.quote}
@@ -721,93 +822,91 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-
-              <div className="mt-16 flex flex-wrap items-center gap-8 justify-center">
-                <span className="text-gray-400 text-xs font-mono tracking-widest">{t("home.trustedBy")}</span>
-                {["Groupe A", "Banque B", "Énergie C", "Infra D", "Santé E", "Défense F"].map((name) => (
-                  <span key={name} className="text-gray-400 font-bold text-sm tracking-wide">{name}</span>
-                ))}
-              </div>
             </div>
           </section>
-        </FadeIn>
+        </Reveal>
 
-        {/* ARCHITECTURE */}
-        <FadeIn>
-          <section className="bg-gray-950 py-28">
-            <div className="container">
-              <div className="text-blue-500 font-mono text-xs tracking-widest mb-4">{t("home.architecture")}</div>
-              <h2 className="text-4xl font-black text-white tracking-tight mb-16" style={{ letterSpacing: "-0.02em" }}>
+        {/* MARQUEE - TRUSTED BY */}
+        <LogoMarquee
+          label={t("home.trustedBy")}
+          items={["Groupe A", "Banque B", "Énergie C", "Infra D", "Santé E", "Défense F", "Industrie G", "Telecom H"]}
+        />
+
+        {/* ARCHITECTURE - section claire */}
+        <section className="section-white py-28 border-y border-light-border">
+          <div className="container">
+            <Reveal>
+              <div className="eyebrow-dark mb-4">{t("home.architecture")}</div>
+              <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-16" style={{ letterSpacing: "-0.02em" }}>
                 {t("home.builtForCritical")}
               </h2>
+            </Reveal>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
-                {ARCH_ITEMS.map((item) => (
-                  <div key={item.title} className="bg-gray-950 p-8 hover:bg-gray-900/60 transition-colors">
-                    <item.icon className="h-5 w-5 text-blue-500 mb-5" />
-                    <h3 className="text-white font-bold text-base mb-2">{item.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ARCH_ITEMS.map((item, i) => (
+                <Reveal key={item.title} delay={i * 0.06} variant="fadeUp">
+                  <div className="card-light p-8 h-full group cursor-default">
+                    <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-blue-100 transition-colors duration-200">
+                      <item.icon className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                    </div>
+                    <h3 className="text-slate-900 font-bold text-base mb-2">{item.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
                   </div>
-                ))}
-              </div>
+                </Reveal>
+              ))}
             </div>
-          </section>
-        </FadeIn>
+          </div>
+        </section>
 
-        {/* CTA FINAL */}
-        <FadeIn>
-          <section className="relative bg-blue-700 overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-[0.07]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-                backgroundSize: "32px 32px",
-              }}
-            />
+        {/* CTA FINAL - sombre avec orange CTA (Trust & Authority pattern) */}
+        <Reveal variant="fadeIn">
+          <section className="relative bg-slate-900 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_60%)]" aria-hidden="true" />
 
             <div className="relative container py-24 flex flex-col lg:flex-row items-center justify-between gap-12">
               <div>
-                <div className="text-blue-200 font-mono text-xs tracking-widest mb-4">{t("home.noCommitment")}</div>
+                <div className="font-mono text-xs tracking-widest mb-4 text-slate-400">{t("home.noCommitment")}</div>
                 <h2 className="text-4xl font-black text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
                   {t("home.evaluatePlatform")}
                   <br />
-                  {t("home.yourInfrastructure")}
+                  <span className="text-blue-400">{t("home.yourInfrastructure")}</span>
                 </h2>
-                <p className="mt-4 text-blue-100/70 text-sm max-w-md leading-relaxed">
+                <p className="mt-4 text-slate-400 text-sm max-w-md leading-relaxed">
                   {t("home.pocDesc")}
                 </p>
+
+                {/* Badges trust */}
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {["ISO 27001", "SOC 2", "ANSSI PRIS", "RGPD"].map((b) => (
+                    <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 text-[11px] font-mono text-slate-300 tracking-wide">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+                      {b}
+                    </span>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3 flex-shrink-0">
-                <Link to="/inscription">
-                  <Button
-                    size="lg"
-                    className="bg-blue-700 text-white hover:bg-blue-600 active:bg-blue-800 font-bold px-10 rounded-none gap-2 w-full cursor-pointer transition-colors duration-150"
-                  >
-                    {t("home.startPocBtn")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+              <div className="flex flex-col gap-3 flex-shrink-0 min-w-[260px]">
+                <Link to="/inscription" className="btn-cta justify-center text-sm font-bold px-8 py-3.5 w-full">
+                  {t("home.startPocBtn")}
+                  <ArrowRight className="h-4 w-4 cta-arrow" />
                 </Link>
-                <Link to="/contact">
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    className="text-white border border-white/30 hover:bg-white/10 rounded-none gap-2 font-mono text-sm tracking-wide w-full"
-                  >
-                    {t("home.talkToExpert")}
-                    <Users className="h-4 w-4" />
-                  </Button>
+                <Link to="/contact" className="btn-ghost-dark justify-center text-sm w-full">
+                  {t("home.talkToExpert")}
+                  <Users className="h-4 w-4" />
                 </Link>
-                <p className="text-blue-200/50 text-xs text-center font-mono">
+                <p className="text-slate-500 text-xs text-center font-mono">
                   {t("home.responseTime")}
                 </p>
               </div>
             </div>
           </section>
-        </FadeIn>
+        </Reveal>
 
       </div>
+      <Suspense fallback={null}>
+        <ChatbotWidget onEscalate={() => navigate('/contact')} />
+      </Suspense>
     </PageTransition>
   );
 }

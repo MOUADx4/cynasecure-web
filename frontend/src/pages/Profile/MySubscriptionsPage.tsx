@@ -50,14 +50,14 @@ function DashboardSkeleton() {
   return (
     <>
       <UserNav />
-      <div className="container py-10 space-y-6 animate-pulse">
-        <div className="h-24 bg-gray-800" />
-        <div className="flex gap-6">
-          <div className="h-16 w-40 bg-gray-800" />
-          <div className="h-16 w-40 bg-gray-800" />
+      <div className="container py-10 space-y-6">
+        <div className="skeleton h-24" />
+        <div className="flex gap-4">
+          <div className="skeleton h-16 w-44" />
+          <div className="skeleton h-16 w-44" />
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          {[...Array(2)].map((_, i) => <div key={i} className="h-64 bg-gray-800" />)}
+          {[0, 1].map((i) => <div key={i} className="skeleton h-64" />)}
         </div>
       </div>
     </>
@@ -75,7 +75,7 @@ export default function MySubscriptionsPage() {
   useEffect(() => {
     apiFetch<Subscription[]>("/api/subscriptions/my")
       .then((data) => setSubs(data))
-      .catch((err) => console.error(err))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -193,17 +193,25 @@ export default function MySubscriptionsPage() {
         </div>
 
         {subs.length === 0 && (
-          <Card className="p-16 text-center border-dashed">
-            <Package className="h-12 w-12 mx-auto mb-4 text-gray-500" />
-            <p className="text-gray-400 font-medium">Aucun abonnement pour le moment</p>
-            <p className="text-gray-500 text-sm mt-1">Découvrez nos solutions de cybersécurité</p>
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-gray-800 bg-gray-900/40">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-blue-500/6 blur-2xl scale-[2]" aria-hidden="true" />
+              <div className="relative flex h-16 w-16 items-center justify-center border border-gray-800 bg-gray-900">
+                <Package className="h-7 w-7 text-gray-600" aria-hidden="true" />
+              </div>
+            </div>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-blue-500 mb-2">Services actifs</p>
+            <p className="text-white font-semibold mb-1">Aucun abonnement actif</p>
+            <p className="text-gray-500 text-sm max-w-xs mb-6">
+              Protégez votre infrastructure avec nos solutions de cybersécurité managées.
+            </p>
             <Link to="/catalogue">
-              <Button className="mt-6 gap-1.5">
-                <Package className="h-4 w-4" />
+              <button className="inline-flex items-center gap-2 px-5 h-10 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 transition-colors duration-150">
                 Explorer le catalogue
-              </Button>
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
             </Link>
-          </Card>
+          </div>
         )}
 
         {subs.length > 0 && (

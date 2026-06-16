@@ -87,7 +87,7 @@ class AdminPaymentController extends AbstractController
                 $service = null;
             }
 
-            // Cycle — "checkout" est la valeur stockée pour les one-shots ;
+            // Cycle - "checkout" est la valeur stockée pour les one-shots ;
             // on lit le billing réel depuis le premier OrderItem.
             $cycle = $p->getCycle();
             if (($cycle === 'checkout' || !$cycle) && $order && !$order->getOrderItems()->isEmpty()) {

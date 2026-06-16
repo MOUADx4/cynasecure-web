@@ -70,7 +70,7 @@ export default function MyPaymentsPage() {
   useEffect(() => {
     apiFetch<Payment[]>("/api/payments/my")
       .then((data) => setPayments(data))
-      .catch((err) => console.error(err))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -91,7 +91,7 @@ export default function MyPaymentsPage() {
 
       <div className="container relative py-10 space-y-8 pb-20">
 
-        {/* ── Header ── */}
+        {/* Header */}
         <header className="space-y-1">
           <div className="inline-flex items-center gap-1.5 border border-blue-500/20 bg-blue-500/10 text-blue-400 text-[10px] font-mono tracking-widest px-2.5 py-1 rounded mb-3">
             <Receipt className="h-3 w-3" />
@@ -103,7 +103,7 @@ export default function MyPaymentsPage() {
           </p>
         </header>
 
-        {/* ── Stats ── */}
+        {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="relative overflow-hidden border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-transparent bg-gray-900 p-6 shadow-sm transition-colors hover:bg-gray-800">
             <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-emerald-500/10 text-emerald-400 mb-4">
@@ -130,7 +130,7 @@ export default function MyPaymentsPage() {
           </div>
         </div>
 
-        {/* ── Payments list ── */}
+        {/* Payments list */}
         {payments.length === 0 ? (
           <Card className="p-16 text-center border-dashed">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-gray-700" />

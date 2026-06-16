@@ -42,14 +42,14 @@ function validType(v: string | null): TypeFilter {
 /* Skeleton card */
 function SkeletonCard() {
   return (
-    <div className="bg-gray-900 border border-gray-800 p-6 animate-pulse">
-      <div className="h-3 w-20 bg-gray-800 mb-4" />
-      <div className="h-5 w-3/4 bg-gray-800 mb-2" />
-      <div className="h-3 w-full bg-gray-800 mb-1" />
-      <div className="h-3 w-2/3 bg-gray-800 mb-6" />
+    <div className="bg-gray-900 border border-gray-800 p-6 overflow-hidden">
+      <div className="skeleton h-3 w-20 mb-4" />
+      <div className="skeleton h-5 w-3/4 mb-2" />
+      <div className="skeleton h-3 w-full mb-1.5" />
+      <div className="skeleton h-3 w-2/3 mb-6" />
       <div className="flex justify-between items-center">
-        <div className="h-6 w-24 bg-gray-800" />
-        <div className="h-8 w-28 bg-gray-800" />
+        <div className="skeleton h-6 w-24" />
+        <div className="skeleton h-9 w-28" />
       </div>
     </div>
   );
@@ -293,7 +293,7 @@ export default function CataloguePage() {
       </FadeIn>
 
       {/* Toolbar */}
-      <div className="border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
+      <div className="border-b border-gray-800 bg-gray-900 sticky top-[60px] z-30">
         <div className="container flex items-center justify-between gap-4 py-3">
           <div className="flex items-center gap-1">
             {TYPE_OPTIONS.map((opt) => (

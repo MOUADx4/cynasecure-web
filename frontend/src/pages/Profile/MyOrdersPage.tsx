@@ -141,19 +141,34 @@ export default function MyOrdersPage() {
         </div>
 
         {loading && (
-          <div className="space-y-4 animate-pulse">
-            {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-800" />)}
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-4 border border-gray-800 bg-gray-900 p-4">
+                <div className="skeleton h-9 w-9 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-3.5 w-32" />
+                  <div className="skeleton h-3 w-48" />
+                </div>
+                <div className="skeleton h-5 w-16" />
+              </div>
+            ))}
           </div>
         )}
 
         {!loading && orders.length === 0 && (
-          <Card className="p-16 text-center border-dashed">
-            <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-gray-500" />
-            <p className="text-gray-400 font-medium">Aucune commande trouvée</p>
-            <p className="text-gray-500 text-sm mt-1">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-gray-800 bg-gray-900/40">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-blue-500/6 blur-2xl scale-[2]" aria-hidden="true" />
+              <div className="relative flex h-16 w-16 items-center justify-center border border-gray-800 bg-gray-900">
+                <ShoppingBag className="h-7 w-7 text-gray-600" aria-hidden="true" />
+              </div>
+            </div>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-blue-500 mb-2">Historique</p>
+            <p className="text-white font-semibold mb-1">Aucune commande trouvée</p>
+            <p className="text-gray-500 text-sm max-w-xs">
               {q || year || status ? "Modifiez vos filtres pour voir plus de résultats." : "Vos futures commandes apparaîtront ici."}
             </p>
-          </Card>
+          </div>
         )}
 
         {!loading && sortedYears.map((y) => (

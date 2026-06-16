@@ -85,7 +85,7 @@ class AuthController extends AbstractController
             $raw = bin2hex(random_bytes(32));
             $this->sendVerificationEmail($mailer, $user, $raw);
         } catch (\Throwable) {
-            // mailer unavailable — account is created and verified
+            // mailer unavailable - account is created and verified
         }
 
         return new JsonResponse($this->serializeUser($user), 201);

@@ -77,15 +77,19 @@ class AuthTest extends WebTestCase
 
     public function test_register_avec_donnees_valides_retourne_201(): void
     {
+        $email = 'new_' . uniqid() . '@example.com';
+
         $this->jsonRequest('POST', '/api/register', [
-            'email'       => 'new_' . uniqid() . '@example.com',
+            'email'       => $email,
             'password'    => 'Secure1!Pass',
             'displayName' => 'Nouveau Compte',
         ]);
 
         $this->assertResponseStatusCodeSame(201);
         $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertTrue($data['needsVerification']);
+        $this->assertSame($email, $data['email']);
+        $this->assertSame('Nouveau Compte', $data['displayName']);
+        $this->assertSame('ROLE_USER', $data['role']);
     }
 
     public function test_register_sans_email_retourne_400(): void

@@ -31,6 +31,7 @@ class AdminHomeController extends AbstractController
             'title'     => $s->getTitle(),
             'subtitle'  => $s->getSubtitle(),
             'imagePath' => $s->getImagePath(),
+            'videoPath' => $s->getVideoPath(),
             'ctaLabel'  => $s->getCtaLabel(),
             'ctaUrl'    => $s->getCtaUrl(),
             'position'  => $s->getPosition(),
@@ -88,6 +89,7 @@ class AdminHomeController extends AbstractController
             ->setTitle(substr($d['title'], 0, 120))
             ->setSubtitle(isset($d['subtitle']) ? substr($d['subtitle'], 0, 240) : null)
             ->setImagePath($d['imagePath'] ?? null)
+            ->setVideoPath($d['videoPath'] ?? null)
             ->setCtaLabel(isset($d['ctaLabel']) ? substr($d['ctaLabel'], 0, 60) : null)
             ->setCtaUrl(isset($d['ctaUrl']) ? substr($d['ctaUrl'], 0, 255) : null)
             ->setPosition(max(0, (int) ($d['position'] ?? 0)))
@@ -123,13 +125,14 @@ class AdminHomeController extends AbstractController
 
         $d = json_decode($req->getContent(), true) ?? [];
 
-        if (isset($d['title']))     $slide->setTitle(substr($d['title'], 0, 120));
-        if (array_key_exists('subtitle', $d)) $slide->setSubtitle($d['subtitle'] ? substr($d['subtitle'], 0, 240) : null);
+        if (isset($d['title']))                $slide->setTitle(substr($d['title'], 0, 120));
+        if (array_key_exists('subtitle', $d))  $slide->setSubtitle($d['subtitle'] ? substr($d['subtitle'], 0, 240) : null);
         if (array_key_exists('imagePath', $d)) $slide->setImagePath($d['imagePath'] ?: null);
-        if (array_key_exists('ctaLabel', $d)) $slide->setCtaLabel($d['ctaLabel'] ? substr($d['ctaLabel'], 0, 60) : null);
-        if (array_key_exists('ctaUrl', $d)) $slide->setCtaUrl($d['ctaUrl'] ? substr($d['ctaUrl'], 0, 255) : null);
-        if (isset($d['position'])) $slide->setPosition(max(0, (int) $d['position']));
-        if (isset($d['isActive'])) $slide->setIsActive((bool) $d['isActive']);
+        if (array_key_exists('videoPath', $d)) $slide->setVideoPath($d['videoPath'] ?: null);
+        if (array_key_exists('ctaLabel', $d))  $slide->setCtaLabel($d['ctaLabel'] ? substr($d['ctaLabel'], 0, 60) : null);
+        if (array_key_exists('ctaUrl', $d))    $slide->setCtaUrl($d['ctaUrl'] ? substr($d['ctaUrl'], 0, 255) : null);
+        if (isset($d['position']))             $slide->setPosition(max(0, (int) $d['position']));
+        if (isset($d['isActive']))             $slide->setIsActive((bool) $d['isActive']);
 
         $em->flush();
         return $this->json($this->slideJson($slide));

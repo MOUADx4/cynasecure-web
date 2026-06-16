@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -45,44 +45,126 @@ interface Service {
   priceMonthly: number;
 }
 
+function useCountUp(target: number, duration = 1100, enabled = true) {
+  const [count, setCount] = useState(0);
+  const raf = useRef<number>(0);
+  useEffect(() => {
+    if (!enabled) return;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.round(target * eased));
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [target, duration, enabled]);
+  return count;
+}
+
+function SecurityRing({ score, size = 120 }: { score: number; size?: number }) {
+  const r = (size - 16) / 2;
+  const circ = 2 * Math.PI * r;
+  const [dash, setDash] = useState(circ);
+  useEffect(() => {
+    const id = setTimeout(() => setDash(circ * (1 - score / 100)), 120);
+    return () => clearTimeout(id);
+  }, [score, circ]);
+  const color = score >= 80 ? "#22c55e" : score >= 50 ? "#f59e0b" : "#ef4444";
+  const label = score >= 80 ? "Excellent" : score >= 50 ? "Moyen" : "Faible";
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1f2937" strokeWidth={10} />
+        <circle
+          cx={size / 2} cy={size / 2} r={r} fill="none"
+          stroke={color} strokeWidth={10}
+          strokeDasharray={circ} strokeDashoffset={dash}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)" }}
+        />
+      </svg>
+      <div className="flex flex-col items-center" style={{ marginTop: -size * 0.72 }}>
+        <span className="text-2xl font-black text-white">{score}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color }}>{label}</span>
+      </div>
+      <div style={{ marginTop: size * 0.52 }} />
+    </div>
+  );
+}
+
 function fmt(d: string, pattern = "dd MMM yyyy") {
   try { return format(new Date(d), pattern, { locale: fr }); }
   catch { return d; }
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const ok = status === "ACTIVE" || status === "paid";
+  const isActive = status === "ACTIVE";
+  const ok = isActive || status === "paid";
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border ${
       ok
         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
         : "bg-red-500/10 text-red-400 border-red-500/20"
     }`}>
-      {ok ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+      {isActive ? (
+        <span className="relative flex h-2 w-2">
+          <span className="animate-dot-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+        </span>
+      ) : ok ? (
+        <CheckCircle2 className="h-3 w-3" />
+      ) : (
+        <XCircle className="h-3 w-3" />
+      )}
       {status === "ACTIVE" ? "Actif" : status === "paid" ? "Payé" : status === "CANCELLED" ? "Annulé" : status}
     </span>
   );
 }
 
+function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const n = useCountUp(value);
+  return <>{n.toLocaleString("fr-FR")}{suffix}</>;
+}
+
 function StatCard({
-  icon, label, value, sub,
-  borderCls, iconCls, gradCls,
+  icon, label, value, sub, numericValue,
+  borderCls, iconCls, gradCls, delay = 0,
 }: {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   sub?: string;
+  numericValue?: number;
   borderCls: string;
   iconCls: string;
   gradCls: string;
+  delay?: number;
 }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(id);
+  }, [delay]);
   return (
-    <div className={`relative overflow-hidden border ${borderCls} bg-gradient-to-br ${gradCls} bg-gray-900 rounded-none p-6 shadow-sm transition-colors hover:bg-gray-800`}>
+    <div
+      className={`relative overflow-hidden border ${borderCls} bg-gradient-to-br ${gradCls} bg-gray-900 rounded-none p-6 shadow-sm transition-all hover:bg-gray-800`}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(12px)",
+        transition: "opacity 0.4s ease, transform 0.4s ease",
+      }}
+    >
       <div className={`inline-flex items-center justify-center h-10 w-10 rounded-lg mb-4 ${iconCls}`}>
         {icon}
       </div>
       <p className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">{label}</p>
-      <div className="mt-1 text-2xl font-black text-white">{value}</div>
+      <div className="mt-1 text-2xl font-black text-white">
+        {numericValue !== undefined && visible
+          ? <AnimatedNumber value={numericValue} />
+          : value}
+      </div>
       {sub && <p className="mt-1 text-xs text-gray-500">{sub}</p>}
     </div>
   );
@@ -92,15 +174,15 @@ function DashboardSkeleton() {
   return (
     <>
       <UserNav />
-      <div className="container py-10 space-y-8 animate-pulse">
-        <div className="h-28 bg-gray-800 rounded-none" />
+      <div className="container py-10 space-y-8">
+        <div className="h-28 skeleton rounded-none" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-gray-800" />)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-32 skeleton" />)}
         </div>
-        <div className="h-72 bg-gray-800" />
+        <div className="h-72 skeleton" />
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="h-64 bg-gray-800" />
-          <div className="h-64 bg-gray-800" />
+          <div className="h-64 skeleton" />
+          <div className="h-64 skeleton" />
         </div>
       </div>
     </>
@@ -145,6 +227,14 @@ export default function UserDashboardPage() {
     .filter((s) => s.nextBillingAt)
     .sort((a, b) => new Date(a.nextBillingAt!).getTime() - new Date(b.nextBillingAt!).getTime())[0];
 
+  const securityScore = Math.min(
+    100,
+    (activeSubs.length > 0 ? 40 : 0) +
+    (payments.length > 0 ? 20 : 0) +
+    (subscriptions.some((s) => s.status === "ACTIVE" && s.cycle === "yearly") ? 20 : 0) +
+    Math.min(activeSubs.length * 10, 20)
+  );
+
   const chartData = payments
     .slice()
     .sort((a, b) => new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime())
@@ -169,7 +259,7 @@ export default function UserDashboardPage() {
 
       <div className="container relative py-10 space-y-8 pb-20">
 
-        {/* ── Welcome banner ── */}
+        {/* Welcome banner */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between border border-gray-800 bg-gray-900/80 p-7">
           <div className="flex items-center gap-5">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/20 border-2 border-blue-500/30 text-xl font-black text-blue-400 flex-shrink-0">
@@ -191,40 +281,48 @@ export default function UserDashboardPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link to="/catalogue">
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <Package className="h-4 w-4" />
-                Explorer les solutions
-              </Button>
-            </Link>
-            <Link to="/profil">
-              <Button variant="ghost" size="sm" className="gap-1.5 text-gray-400">
-                Mon profil
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
+          <div className="flex flex-col items-end gap-3">
+            <SecurityRing score={securityScore} size={110} />
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest -mt-1">Score sécurité</p>
           </div>
         </div>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/catalogue">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Package className="h-4 w-4" />
+              Explorer les solutions
+            </Button>
+          </Link>
+          <Link to="/profil">
+            <Button variant="ghost" size="sm" className="gap-1.5 text-gray-400">
+              Mon profil
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
 
-        {/* ── KPI Cards ── */}
+        {/* KPI Cards */}
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             icon={<Shield className="h-5 w-5" />}
             label="Services actifs"
             value={activeSubs.length}
+            numericValue={activeSubs.length}
             sub={activeSubs.length === 0 ? "Aucun service souscrit" : undefined}
             borderCls="border-blue-500/20"
             iconCls="bg-blue-500/10 text-blue-400"
             gradCls="from-blue-500/10 to-transparent"
+            delay={0}
           />
           <StatCard
             icon={<CreditCard className="h-5 w-5" />}
             label="Total dépensé"
             value={`${totalPaid.toLocaleString("fr-FR")} €`}
+            numericValue={Math.round(totalPaid)}
             borderCls="border-emerald-500/20"
             iconCls="bg-emerald-500/10 text-emerald-400"
             gradCls="from-emerald-500/10 to-transparent"
+            delay={80}
           />
           <StatCard
             icon={<Calendar className="h-5 w-5" />}
@@ -233,18 +331,21 @@ export default function UserDashboardPage() {
             borderCls="border-violet-500/20"
             iconCls="bg-violet-500/10 text-violet-400"
             gradCls="from-violet-500/10 to-transparent"
+            delay={160}
           />
           <StatCard
             icon={<Activity className="h-5 w-5" />}
             label="Transactions"
             value={payments.length}
+            numericValue={payments.length}
             borderCls="border-amber-500/20"
             iconCls="bg-amber-500/10 text-amber-400"
             gradCls="from-amber-500/10 to-transparent"
+            delay={240}
           />
         </div>
 
-        {/* ── Spending chart ── */}
+        {/* Spending chart */}
         <Card className="p-7 bg-gray-900 border-gray-800">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
@@ -283,7 +384,7 @@ export default function UserDashboardPage() {
           )}
         </Card>
 
-        {/* ── Active subs + Recent payments ── */}
+        {/* Active subs + Recent payments */}
         <div className="grid gap-8 lg:grid-cols-2">
 
           {/* Active subscriptions */}
@@ -362,7 +463,7 @@ export default function UserDashboardPage() {
           </section>
         </div>
 
-        {/* ── Recommendations ── */}
+        {/* Recommendations */}
         {recommended.length > 0 && (
           <section className="space-y-5">
             <div className="flex items-center justify-between">

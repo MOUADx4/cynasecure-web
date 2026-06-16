@@ -7,7 +7,7 @@ import { ChatbotWidget } from "../../components/contact/ChatbotWidget";
 import { contactApi, type UserMessage } from "../../api/contact";
 import { useAuth } from "../../hooks/useAuth";
 import { PageTransition } from "../../components/ui/PageTransition";
-import { FadeIn } from "../../components/ui/FadeIn";
+import { Reveal } from "../../components/motion/Reveal";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
@@ -92,19 +92,11 @@ export default function ContactPage() {
     <div className="bg-gray-950 min-h-screen">
 
       {/* En-tête */}
-      <FadeIn>
+      <Reveal variant="fadeIn">
       <section className="relative overflow-hidden pt-28 pb-20 border-b border-gray-800">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] opacity-10 pointer-events-none"
           style={{ background: "radial-gradient(circle, #2563eb 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
         />
 
         <div className="relative container max-w-4xl">
@@ -122,7 +114,7 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
-      </FadeIn>
+      </Reveal>
 
       {/* Informations de contact */}
       <section className="border-b border-gray-800">

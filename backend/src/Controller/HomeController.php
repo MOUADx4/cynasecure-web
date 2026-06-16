@@ -25,6 +25,7 @@ class HomeController extends AbstractController
             'title'     => $s->getTitle(),
             'subtitle'  => $s->getSubtitle(),
             'imagePath' => $s->getImagePath(),
+            'videoPath' => $s->getVideoPath(),
             'ctaLabel'  => $s->getCtaLabel(),
             'ctaUrl'    => $s->getCtaUrl(),
             'position'  => $s->getPosition(),

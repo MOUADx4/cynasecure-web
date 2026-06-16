@@ -35,6 +35,7 @@ export function ContactForm({ prefillSubject, prefillMessage }: Props) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return t("contact.formErrorEmail");
     if (!SUBJECTS.includes(subject)) return t("contact.formErrorSubject");
     if (message.trim().length < 10) return t("contact.formErrorMinLength");
+    if (message.length > 5000) return t("contact.formErrorMaxLength");
     return null;
   };
 
@@ -123,6 +124,7 @@ export function ContactForm({ prefillSubject, prefillMessage }: Props) {
             rows={5}
             placeholder={t("contact.formMessagePlaceholder")}
             value={message}
+            maxLength={5000}
             onChange={(e) => setMessage(e.target.value)}
             className="w-full bg-gray-900 border border-gray-800 text-gray-200 text-sm pl-10 pr-4 py-3 placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-all duration-150 resize-none"
           />

@@ -68,18 +68,26 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[65vh] flex flex-col items-center justify-center text-center px-4">
-        <div className="border border-gray-800 bg-gray-900 p-8 mb-6">
-          <ShoppingCart className="h-12 w-12 text-gray-500 mx-auto" />
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-blue-500/8 blur-2xl scale-[2]" aria-hidden="true" />
+          <div className="relative flex h-24 w-24 items-center justify-center border border-gray-800 bg-gray-900">
+            <ShoppingCart className="h-9 w-9 text-gray-600" aria-hidden="true" />
+          </div>
         </div>
-        <h1 className="text-2xl font-bold text-white">{t("checkout.emptyCart")}</h1>
-        <p className="mt-2 text-gray-500 text-sm max-w-xs">
+        <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-blue-500 mb-3">
+          {t("checkout.emptyCart")}
+        </p>
+        <h1 className="text-2xl font-black text-white mb-2" style={{ letterSpacing: "-0.02em" }}>
+          Panier vide
+        </h1>
+        <p className="text-gray-500 text-sm max-w-xs leading-relaxed mb-8">
           {t("checkout.emptyCartDesc")}
         </p>
-        <Link to="/catalogue" className="mt-6">
-          <Button className="gap-2">
-            {t("checkout.seeCatalogue")} <ArrowRight className="h-4 w-4" />
-          </Button>
+        <Link to="/catalogue">
+          <button className="inline-flex items-center gap-2 px-6 h-11 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors duration-150">
+            {t("checkout.seeCatalogue")} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
         </Link>
       </div>
     );

@@ -4,18 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 
-    <!-- Fonts -->
+    <!-- Fonts: Geist self-hosted (preloaded), JetBrains Mono deferred (non-blocking) -->
+    <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'"
     />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    </noscript>
 
     <!-- SEO -->
-    <title>CynaSecure </title>
+    <title>CynaSecure — Cybersécurité B2B</title>
     <meta
       name="description"
       content="SOC, EDR, XDR managés. Souscrivez en ligne aux solutions de cybersécurité CynaSecure. Déploiement instantané, protection 24/7."
@@ -32,7 +36,15 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="app-shell" style="position:fixed;inset:0;background:#030712;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;pointer-events:none">
+        <img src="/favicon-32.png" alt="" aria-hidden="true" width="48" height="48" style="margin-bottom:16px;opacity:.9" />
+        <h1 style="margin:0;color:#fff;font-size:clamp(1.75rem,5vw,3rem);font-weight:900;font-family:system-ui,-apple-system,sans-serif;letter-spacing:-.02em;line-height:1">
+          Cyna<span style="color:#60a5fa">Secure</span>
+        </h1>
+        <p style="margin:12px 0 0;color:#6b7280;font-size:.85rem;font-family:system-ui,sans-serif">Cybersécurité B2B</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

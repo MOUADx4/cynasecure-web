@@ -35,7 +35,7 @@ describe("Button", () => {
 
   it("sans prop type, le bouton n'a pas d'attribut type explicite", () => {
     render(<Button>Btn</Button>);
-    // Le composant ne force pas type="button" — comportement HTML natif
+    // Le composant ne force pas type="button" - comportement HTML natif
     expect(screen.getByRole("button")).not.toHaveAttribute("type", "submit");
   });
 

@@ -21,34 +21,61 @@ export function useAuth(): AuthContextType {
   return ctx;
 }
 
+const CACHE_KEY = "auth_user";
+
+function readCachedUser(): User | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedUser(u: User | null) {
+  try {
+    if (u) sessionStorage.setItem(CACHE_KEY, JSON.stringify(u));
+    else sessionStorage.removeItem(CACHE_KEY);
+  } catch {}
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const cached = readCachedUser();
+
+  const [user, setUserState] = useState<User | null>(cached);
+  // If we already have a cached user, skip the loading gate so the page renders immediately.
+  // The /api/me call still runs in the background to validate the session.
+  const [isLoading, setIsLoading] = useState(!cached);
+
+  const setUser = (u: User | null) => {
+    writeCachedUser(u);
+    setUserState(u);
+  };
 
   useEffect(() => {
     authApi
       .me()
-      .then((u) => setUser(u))
-      .catch(() => setUser(null))
+      .then((u) => {
+        writeCachedUser(u);
+        setUserState(u);
+      })
+      .catch(() => {
+        writeCachedUser(null);
+        setUserState(null);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
   const login = async (email: string, password: string, rememberMe = false) => {
     try {
       const res = await authApi.login(email, password, rememberMe);
-      if (res.requires2fa) {
-        return { requires2fa: true };
-      }
-      if (res.emailUnverified) {
-        return { emailUnverified: true };
-      }
+      if (res.requires2fa) return { requires2fa: true };
+      if (res.emailUnverified) return { emailUnverified: true };
       setUser(res);
       return {};
     } catch (err: unknown) {
       const data = (err as { data?: { emailUnverified?: boolean } })?.data;
-      if (data?.emailUnverified) {
-        return { emailUnverified: true };
-      }
+      if (data?.emailUnverified) return { emailUnverified: true };
       throw err;
     }
   };

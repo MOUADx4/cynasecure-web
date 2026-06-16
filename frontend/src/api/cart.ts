@@ -1,7 +1,7 @@
 import { apiFetch } from "./apiFetch";
 
 /**
- * API Panier — version propre, humaine, et prête pour un backend réel.
+ * API Panier - version propre, humaine, et prête pour un backend réel.
  * 
  * Le backend doit exposer :
  *  - GET    /cart

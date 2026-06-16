@@ -76,7 +76,7 @@ class CheckoutController extends AbstractController
             return new JsonResponse(['message' => 'Adresse de facturation incomplète.'], 400);
         }
 
-        // Compute total server-side — never trust the front
+        // Compute total server-side - never trust the front
         $orderItems  = [];
         $total       = 0.0;
         $paypalItems = [];
@@ -183,7 +183,7 @@ class CheckoutController extends AbstractController
                 }
             }
         } catch (\Exception $e) {
-            // PayPal failure is non-blocking — Stripe remains available
+            // PayPal failure is non-blocking - Stripe remains available
             $order->setPaypalOrderId(null);
         }
 
@@ -306,7 +306,7 @@ class CheckoutController extends AbstractController
         // Invoice number
         $year          = (int) date('Y');
         $count         = $paymentRepo->count([]) + 1;
-        $invoiceNumber = sprintf('INV-%d-%04d', $year, $count);
+        $invoiceNumber = sprintf('FAC-%d-%04d', $year, $count);
 
         // Payment record
         $payment = new Payment();
@@ -331,7 +331,7 @@ class CheckoutController extends AbstractController
         // Flush now to get the Payment ID before creating subscriptions
         $em->flush();
 
-        // Subscriptions — uniquement pour les utilisateurs connectés
+        // Subscriptions - uniquement pour les utilisateurs connectés
         $orderOwner = $order->getUser();
         if ($orderOwner !== null) {
             $now = new \DateTimeImmutable();

@@ -469,14 +469,14 @@ function PaymentStep({
 
           {tab === "paypal" && (
             <PayPalButtons
+              fundingSource="paypal"
               style={{ layout: "vertical", color: "blue", shape: "rect" }}
               createOrder={() => Promise.resolve(intent.paypalOrderId)}
               onApprove={async (data) => {
                 await handlePaypalApprove(data.orderID);
               }}
-              onError={(err) => {
+              onError={() => {
                 setError(t("checkout.paypalError"));
-                console.error(err);
               }}
             />
           )}

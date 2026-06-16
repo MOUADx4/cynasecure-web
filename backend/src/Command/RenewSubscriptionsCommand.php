@@ -42,7 +42,7 @@ class RenewSubscriptionsCommand extends Command
             $sub->setLastRenewalAttempt($now);
 
             if (!$sub->getPaymentMethodId()) {
-                $io->writeln(sprintf('  [SKIP] sub #%d — no payment method saved (requires off_session setup)', $sub->getId()));
+                $io->writeln(sprintf('  [SKIP] sub #%d - no payment method saved (requires off_session setup)', $sub->getId()));
                 $sub->setRenewalFailureCount($sub->getRenewalFailureCount() + 1);
                 $this->em->flush();
                 continue;
@@ -59,7 +59,7 @@ class RenewSubscriptionsCommand extends Command
 
                 $year          = (int) date('Y');
                 $count         = $this->em->getRepository(Payment::class)->count([]) + 1;
-                $invoiceNumber = sprintf('INV-%d-%04d', $year, $count);
+                $invoiceNumber = sprintf('FAC-%d-%04d', $year, $count);
 
                 $payment = new Payment();
                 $payment->setSubscription($sub);
@@ -82,7 +82,7 @@ class RenewSubscriptionsCommand extends Command
                 $this->em->flush();
 
                 $ok++;
-                $io->writeln(sprintf('  [OK] sub #%d — %s €', $sub->getId(), $sub->getPrice()));
+                $io->writeln(sprintf('  [OK] sub #%d - %s €', $sub->getId(), $sub->getPrice()));
             } catch (\Exception $e) {
                 $sub->setRenewalFailureCount($sub->getRenewalFailureCount() + 1);
                 if ($sub->getRenewalFailureCount() >= 3) {
@@ -91,11 +91,11 @@ class RenewSubscriptionsCommand extends Command
                 $this->em->flush();
                 $failed++;
                 $this->logger->error('Renewal failed', ['subId' => $sub->getId(), 'error' => $e->getMessage()]);
-                $io->writeln(sprintf('  [FAIL] sub #%d — %s', $sub->getId(), $e->getMessage()));
+                $io->writeln(sprintf('  [FAIL] sub #%d - %s', $sub->getId(), $e->getMessage()));
             }
         }
 
-        $io->success(sprintf('Done — %d renewed, %d failed', $ok, $failed));
+        $io->success(sprintf('Done - %d renewed, %d failed', $ok, $failed));
         return Command::SUCCESS;
     }
 }

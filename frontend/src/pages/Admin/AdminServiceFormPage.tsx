@@ -74,7 +74,7 @@ export default function AdminServiceFormPage() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((prev) => ({ ...prev, [k]: v }));
 
-  /* ─ Images ─ */
+  /* Images */
   const uploadImg = async (file: File): Promise<string> => {
     const fd = new FormData();
     fd.append("file", file);
@@ -108,7 +108,7 @@ export default function AdminServiceFormPage() {
   const removeImg = (i: number) =>
     set("images", form.images.filter((_, idx) => idx !== i));
 
-  /* ─ Specs ─ */
+  /* Specs */
   const addSpec = () =>
     set("technicalSpecs", [...form.technicalSpecs, { label: "", value: "" }]);
 
@@ -120,7 +120,7 @@ export default function AdminServiceFormPage() {
   const removeSpec = (i: number) =>
     set("technicalSpecs", form.technicalSpecs.filter((_, idx) => idx !== i));
 
-  /* ─ Features ─ */
+  /* Features */
   const addFeature = () =>
     set("features", [...form.features, { label: "", included: true }]);
 
@@ -134,7 +134,7 @@ export default function AdminServiceFormPage() {
   const removeFeature = (i: number) =>
     set("features", (form.features as ServiceFeature[]).filter((_, idx) => idx !== i));
 
-  /* ─ Submit ─ */
+  /* Submit */
   const submit = async () => {
     try {
       const payload: FormState = {
@@ -242,7 +242,7 @@ export default function AdminServiceFormPage() {
           <textarea id="svc-long-description" className={inputCls} rows={5} value={form.longDescription} onChange={(e) => set("longDescription", e.target.value)} />
         </div>
 
-        {/* ─ Images multiples ─ */}
+        {/* Images multiples */}
         <div>
           <label className={labelCls + " block mb-3"}>
             Illustrations ({form.images.length}/10)
@@ -296,7 +296,7 @@ export default function AdminServiceFormPage() {
           />
         </div>
 
-        {/* ─ Caractéristiques techniques ─ */}
+        {/* Caractéristiques techniques */}
         <div>
           <label className={labelCls + " block mb-3"}>
             Caractéristiques techniques ({form.technicalSpecs.length}/20)
@@ -336,7 +336,7 @@ export default function AdminServiceFormPage() {
           )}
         </div>
 
-        {/* ─ Fonctionnalités ─ */}
+        {/* Fonctionnalités */}
         <div>
           <label className={labelCls + " block mb-3"}>Fonctionnalités incluses</label>
           <div className="space-y-2 mb-3">

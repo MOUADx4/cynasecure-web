@@ -66,7 +66,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  // addToCart — un seul exemplaire par service (id unique)
+  // addToCart - un seul exemplaire par service (id unique)
   const addToCart = useCallback<CartContextValue["addToCart"]>((item) => {
     setItems((prev) => {
       if (prev.some((p) => p.id === item.id)) return prev;

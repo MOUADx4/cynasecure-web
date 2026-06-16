@@ -1,6 +1,6 @@
 import { FormEvent, useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, Shield } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { ErrorMessage } from "../../components/ui/ErrorMessage";
@@ -94,38 +94,16 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-20 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #2563eb 0%, transparent 70%)" }}
-        aria-hidden="true"
-      />
-
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-        aria-hidden="true"
-      />
-
-      <div className="text-center mb-10 relative">
-        <div className="inline-flex items-center gap-2 border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[11px] font-mono tracking-widest px-3 py-1.5 rounded">
-          <Shield className="h-3 w-3" aria-hidden="true" />
-          {t("auth.secureAuth")}
-        </div>
-
-        <h1 className="text-3xl font-black text-white mt-4 tracking-tight">
+      <div className="mb-8">
+        <h1 className="text-2xl font-black text-white tracking-tight" style={{ letterSpacing: "-0.02em" }}>
           {t("auth.loginTitle")}
         </h1>
-
-        <p className="text-gray-400 text-sm mt-2">
+        <p className="text-gray-400 text-sm mt-1.5">
           {t("auth.loginSubtitle")}
         </p>
       </div>
 
-      <form onSubmit={submit} className="space-y-6 relative" noValidate>
+      <form onSubmit={submit} className="space-y-5" noValidate>
         <div>
           <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-gray-300">
             {t("auth.email")}
@@ -226,7 +204,7 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-5 text-sm text-gray-500">
         {t("auth.noAccount")}{" "}
         <Link to="/inscription" className="text-blue-400 hover:text-blue-300 transition-colors">
           {t("auth.registerLink")}

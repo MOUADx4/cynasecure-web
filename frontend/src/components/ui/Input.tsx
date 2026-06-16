@@ -24,7 +24,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           // Placeholder
           "placeholder:text-gray-500",
 
-          // Focus state XDR : bleu discret, pas flashy
+          // Hover / focus
+          "hover:border-gray-700",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-500",
 
           // Transition

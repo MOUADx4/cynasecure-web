@@ -43,7 +43,7 @@ class InvoiceService
         $billing = $order?->getBillingAddress() ?? [];
         $items   = $order?->getOrderItems() ?? [];
 
-        $invoiceNumber = htmlspecialchars($payment->getInvoiceNumber() ?? 'INV-000', ENT_QUOTES, 'UTF-8');
+        $invoiceNumber = htmlspecialchars($payment->getInvoiceNumber() ?? 'FAC-000', ENT_QUOTES, 'UTF-8');
         $invoiceDate   = $payment->getPaidAt()?->format('d/m/Y') ?? date('d/m/Y');
 
         $billingName = trim(($billing['firstName'] ?? '') . ' ' . ($billing['lastName'] ?? ''));

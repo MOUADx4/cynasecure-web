@@ -3,7 +3,8 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { ScrollToTop } from "../ui/ScrollToTop";
 import { useTranslation } from "react-i18next";
-import React from "react";
+import React, { lazy, Suspense } from "react";
+const CookieConsent = lazy(() => import("../ui/CookieConsent").then(m => ({ default: m.CookieConsent })));
 
 export function PublicLayout() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export function PublicLayout() {
 
       <Footer />
       <ScrollToTop />
+      <Suspense fallback={null}><CookieConsent /></Suspense>
     </div>
   );
 }
