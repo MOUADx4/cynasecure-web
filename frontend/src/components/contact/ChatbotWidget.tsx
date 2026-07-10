@@ -133,12 +133,17 @@ export function ChatbotWidget({ onEscalate }: Props) {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-              </span>
-              <span id="chatbot-title" className="text-white text-sm font-semibold">{t("chatbot.title")}</span>
-              <span className="text-gray-600 font-mono text-[10px] tracking-widest">{t("chatbot.online")}</span>
+              <img src="/favicon.ico" alt="CynaSecure" className="h-5 w-5 object-contain" />
+              <div className="flex flex-col">
+                <span id="chatbot-title" className="text-white text-sm font-semibold">{t("chatbot.title")}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                  </span>
+                  <span className="text-gray-600 font-mono text-[10px] tracking-widest">{t("chatbot.online")}</span>
+                </span>
+              </div>
             </div>
             <button
               onClick={() => setOpen(false)}

@@ -71,7 +71,7 @@ export function CookieConsent() {
             {/* Header */}
             <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3 border-b border-gray-800">
               <div className="flex items-center gap-2.5">
-                <div className="flex-shrink-0 flex items-center justify-center w-7 h-7 bg-blue-600/10 border border-blue-500/20">
+                <div className="flex-shrink-0 flex items-center justify-center w-7 h-7">
                   <img
                     src="/favicon.ico"
                     alt="CynaSecure"

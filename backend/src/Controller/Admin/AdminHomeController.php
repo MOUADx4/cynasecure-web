@@ -22,7 +22,7 @@ use OpenApi\Attributes as OA;
 #[OA\SecurityRequirement(['cookieAuth' => []])]
 class AdminHomeController extends AbstractController
 {
-    /* ── helpers ── */
+    /* helpers */
 
     private function slideJson(HomeCarouselSlide $s): array
     {

@@ -28,6 +28,7 @@ const VerifyEmailChangePage   = lazy(() => import("../pages/Auth/VerifyEmailChan
 const ProfilePage             = lazy(() => import("../pages/Profile/ProfilePage"));
 const MySubscriptionsPage     = lazy(() => import("../pages/Profile/MySubscriptionsPage"));
 const MyOrdersPage            = lazy(() => import("../pages/Profile/MyOrdersPage"));
+const MyPaymentsPage          = lazy(() => import("../pages/Profile/MyPaymentsPage"));
 const UserDashboardPage       = lazy(() => import("../pages/Profile/UserDashboardPage"));
 
 const AProposPage             = lazy(() => import("../pages/Legal/AProposPage"));
@@ -90,6 +91,7 @@ function AnimatedRoutes() {
           <Route path="/dashboard"       element={<ProtectedRoute><UserDashboardPage /></ProtectedRoute>} />
           <Route path="/mes-abonnements" element={<ProtectedRoute><MySubscriptionsPage /></ProtectedRoute>} />
           <Route path="/mes-commandes"   element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
+          <Route path="/mes-paiements"   element={<ProtectedRoute><MyPaymentsPage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

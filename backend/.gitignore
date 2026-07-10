@@ -15,3 +15,7 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Local runtime uploads / test env
+/public/uploads/
+/.env.test

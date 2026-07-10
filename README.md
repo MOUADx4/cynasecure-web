@@ -180,11 +180,20 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-Pour charger des données de démonstration (si des fixtures sont présentes) :
+Pour charger un jeu de données de démonstration (catalogue, catégories, contenu de la page d'accueil, code promo et deux comptes de test), importer le dump fourni :
 
 ```bash
-php bin/console doctrine:fixtures:load --no-interaction
+mysql -u root -p cynasecure < database/cynasecure_demo.sql
 ```
+
+Comptes de démonstration disponibles après import :
+
+| Rôle | Identifiant | Mot de passe |
+|---|---|---|
+| Administrateur | `admin@demo.local` | `Admin1234!` |
+| Client | `user@demo.local` | `Demo1234!` |
+
+Le détail figure dans [`backend/database/README.md`](backend/database/README.md).
 
 ---
 
@@ -250,7 +259,7 @@ API disponible sur `http://localhost:8000`.
 ### Terminal 2 — Webhooks Stripe (optionnel)
 
 ```bash
-stripe listen --forward-to http://localhost:8000/api/webhooks/stripe
+stripe listen --forward-to http://localhost:8000/api/stripe/webhook
 ```
 
 Reporter le secret `whsec_...` affiché dans `STRIPE_WEBHOOK_SECRET`.
@@ -344,7 +353,7 @@ Ouvrir Chrome DevTools → onglet **Lighthouse** → cocher **Accessibility** �
 | Webhooks | Vérification de signature côté serveur (Stripe et PayPal) |
 | Détection de fraude | Stripe Radar + scoring interne (IP, fréquence, e-mails jetables) |
 | Protections | CSRF (formulaires), échappement XSS (React/Twig), requêtes Doctrine paramétrées |
-| Rate limiting | Endpoints sensibles (`/api/auth/*`, `/api/cart/promo`, webhooks) |
+| Limitation des tentatives | Protection anti-force brute sur la connexion (`login_throttling` : 5 tentatives par identifiant et par IP sur 15 minutes) |
 
 ---
 

@@ -1,2 +1,15 @@
 .DS_Store
 **/.DS_Store
+
+# Unrelated local project, not part of CynaSecure
+/mobile/
+
+# Local screenshots, not for GitHub
+/Captures_mobile/
+
+# Personal / non-public documents, not for GitHub
+/docs/assets/
+/docs/Analyse_Personnelle_Mouad_BOUNOKRA.docx
+
+# Claude Code local tooling config
+.claude/
