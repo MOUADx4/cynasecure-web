@@ -10,6 +10,15 @@
 # Personal / non-public documents, not for GitHub
 /docs/assets/
 /docs/Analyse_Personnelle_Mouad_BOUNOKRA.docx
+/docs/QA_BDD_CynaSecure.docx
+/docs/QA_BackOffice_CynaSecure.docx
+/docs/QA_Backend_CynaSecure.docx
+/docs/QA_Frontend_CynaSecure.docx
+/docs/QA_Mobile_CynaSecure.docx
+/docs/QA_Transverse_CynaSecure.docx
+/docs/Trame_Soutenance_CynaSecure.docx
+/docs/deck.js
+/docs/f-cad-01.jpg
 
 # Claude Code local tooling config
 .claude/
