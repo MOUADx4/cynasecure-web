@@ -10,7 +10,7 @@ class InvoiceService
 {
     private function logoBase64(): string
     {
-        // 3 levels up from src/Service → project root → frontend/public
+        // remonte de src/Service jusqu'à la racine du projet, puis frontend/public
         $path = realpath(__DIR__ . '/../../../frontend/public/favicon.ico');
         if (!$path || !file_exists($path)) {
             return '';
@@ -21,7 +21,7 @@ class InvoiceService
             return '';
         }
 
-        // Resize to 56×56 to keep the PDF lightweight
+        // redimensionne en 56x56 pour garder le PDF léger
         $dst = imagecreatetruecolor(56, 56);
         imagealphablending($dst, false);
         imagesavealpha($dst, true);
@@ -74,7 +74,7 @@ class InvoiceService
                     <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#111827;font-weight:600;text-align:right;">%s &euro;</td>
                 </tr>',
                 $bg,
-                htmlspecialchars($item->getService()?->getName() ?? '—', ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($item->getService()?->getName() ?? '-', ENT_QUOTES, 'UTF-8'),
                 $cycleLabel,
                 number_format($price, 2, ',', ' ')
             );
@@ -85,7 +85,7 @@ class InvoiceService
             $itemRows = sprintf(
                 '<tr>
                     <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#111827;font-weight:500;">Abonnement CynaSecure</td>
-                    <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#6b7280;text-align:center;">—</td>
+                    <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#6b7280;text-align:center;">-</td>
                     <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#6b7280;text-align:center;">1</td>
                     <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;color:#111827;font-weight:600;text-align:right;">%s &euro;</td>
                 </tr>',

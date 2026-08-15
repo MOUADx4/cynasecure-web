@@ -5,7 +5,7 @@ nelmio_cors:
         allow_origin:
             - '^http://localhost(:[0-9]+)?$'
             - '^http://127\.0\.0\.1(:[0-9]+)?$'
-            - '^http://192\.168\.1\.16(:[0-9]+)?$'
+            - '^http://192\.168\.1\.102(:[0-9]+)?$'
             - '^exp://.*$'
         allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
         allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
@@ -19,7 +19,7 @@ nelmio_cors:
             allow_origin:
                 - '^http://localhost(:[0-9]+)?$'
                 - '^http://127\.0\.0\.1(:[0-9]+)?$'
-                - '^http://192\.168\.1\.16(:[0-9]+)?$'
+                - '^http://192\.168\.1\.102(:[0-9]+)?$'
                 - '^exp://.*$'
             allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
             allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']

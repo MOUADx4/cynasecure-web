@@ -12,9 +12,9 @@ export default {
 
     extend: {
       fontFamily: {
-        sans: ["Geist", "system-ui", "sans-serif"],
+        sans: ["CynaSans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"],
-        display: ["Geist", "system-ui", "sans-serif"],
+        display: ["CynaSans", "system-ui", "sans-serif"],
       },
 
       colors: {
@@ -53,34 +53,34 @@ export default {
           foreground: "#FFFFFF",
         },
 
-        /* 🟥 Danger / erreurs */
+        /* Danger / erreurs */
         destructive: {
           DEFAULT: "#EF4444",
           foreground: "#FFFFFF",
         },
 
-        /* 🟢 Succès */
+        /* Succès */
         success: "#10B981",
 
-        /* 🧱 Bordures */
+        /* Bordures */
         border: "#2D2D31",
         "border-strong": "#3A3A3F",
 
-        /* 🖊 Inputs */
+        /* Inputs */
         input: "#1A1A1D",
 
-        /* 🔔 Focus ring */
+        /* Focus ring */
         ring: "#3B82F6",
       },
 
-      /* 🟦 Radius premium */
+      /* Radius premium */
       borderRadius: {
         lg: "14px",
         md: "10px",
         sm: "6px",
       },
 
-      /* 🌈 Dégradés modernes */
+      /* Dégradés modernes */
       backgroundImage: {
         "gradient-hero":
           "linear-gradient(135deg, #0B0B0D 0%, #111113 50%, #1A1A1D 100%)",
@@ -88,7 +88,7 @@ export default {
           "linear-gradient(90deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%)",
       },
 
-      /* ✨ Ombres premium */
+      /* Ombres premium */
       boxShadow: {
         glow: "0 0 25px rgba(59, 130, 246, 0.35)",
         card: "0 4px 20px rgba(0,0,0,0.35)",

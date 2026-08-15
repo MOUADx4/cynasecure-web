@@ -23,7 +23,7 @@ class ChatbotService
         [
             'question' => 'Comment annuler mon abonnement ?',
             'keywords' => ['annuler', 'annulation', 'résilier', 'résiliation', 'stopper', 'arrêter'],
-            'answer'   => "Pour annuler votre abonnement, accédez à \"Mes abonnements\" > \"Annuler\". L'annulation prend effet à la fin de la période en cours — vous conservez l'accès jusqu'à cette date. Aucun remboursement au prorata n'est appliqué pour les abonnements mensuels.",
+            'answer'   => "Pour annuler votre abonnement, accédez à \"Mes abonnements\" > \"Annuler\". L'annulation prend effet à la fin de la période en cours : vous conservez l'accès jusqu'à cette date. Aucun remboursement au prorata n'est appliqué pour les abonnements mensuels.",
         ],
         [
             'question' => 'Quels sont vos délais de réponse ?',

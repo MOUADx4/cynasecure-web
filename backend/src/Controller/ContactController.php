@@ -150,7 +150,7 @@ class ContactController extends AbstractController
         $matched = $reply !== '';
 
         if (!$matched) {
-            $reply = "Je n'ai pas trouvé de réponse précise à votre question. Je vous invite à utiliser le formulaire ci-dessous pour joindre notre équipe — nous répondons sous 4h ouvrées.";
+            $reply = "Je n'ai pas trouvé de réponse précise à votre question. Je vous invite à utiliser le formulaire ci-dessous pour joindre notre équipe : nous répondons sous 4h ouvrées.";
         }
 
         $botMsg = new ChatbotMessage();

@@ -293,7 +293,7 @@ class AuthController extends AbstractController
         $email = (new Email())
             ->from('noreply@cynasecure.com')
             ->to($user->getEmail())
-            ->subject('Confirmez votre adresse email — CynaSecure')
+            ->subject('Confirmez votre adresse email - CynaSecure')
             ->html($this->renderView('email/verify_email.html.twig', [
                 'name' => $user->getDisplayName(),
                 'url'  => $url,
